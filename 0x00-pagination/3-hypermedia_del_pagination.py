@@ -1,6 +1,11 @@
-#!/usr/bin/env/python3
+#!/usr/bin/env python3
+"""
+Deletion-resilient hypermedia pagination
+"""
+
 import csv
-from typing import List, Dict
+import math
+from typing import Dict, List
 
 
 class Server:
@@ -46,26 +51,14 @@ class Server:
             Dict[int, int|List[List]|None]: a dict of the following:
                 * index, next_index, page_size, data
         """
-
-        assert isinstance(index, int)
-        assert isinstance(page_size, int)
-        assert index >= 0
-        assert index < len(self.indexed_dataset())
-
-        CSV = self.indexed_dataset()
-        data = []
-
-        next_index = index
-
-        for _ in range(page_size):
-            while not CSV.get(next_index):
-                next_index += 1
-            data.append(CSV.get(next_index))
-            next_index += 1
-
-        return {
-            "index": index,
-            "data": data,
-            "page_size": page_size,
-            "next_index": next_index
-        }
+        focus = []
+        dataset = self.indexed_dataset()
+        index = 0 if index is None else index
+        keys = sorted(dataset.keys())
+        assert index >= 0 and index <= keys[-1]
+        [focus.append(i)
+         for i in keys if i >= index and len(focus) <= page_size]
+        data = [dataset[v] for v in focus[:-1]]
+        next_index = focus[-1] if len(focus) - page_size == 1 else None
+        return {'index': index, 'data': data,
+                'page_size': len(data), 'next_index': next_index}
