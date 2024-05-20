@@ -59,17 +59,14 @@ class Server:
                   int = 10) -> Dict[str, Union[int, List[List], None]]:
         start_index, end_index = self.index_range(page, page_size)
 
-        next_page = None
-        if len(self.dataset()) > end_index:
-            next_page = page + 1
+        next_page = page + 1 if len(self.dataset()) > end_index else None
 
-        prev_page = None
-        if page > 1:
-            prev_page = page - 1
+        prev_page = page - 1 if page > 1 else None
 
-        total_pages = int(len(self.dataset()) / 10)
-        if page_size > 0:
-            total_pages = int(len(self.dataset()) / page_size)
+        totalRows = len(self.dataset())
+        total_pages = totalRows // page_size
+        if totalRows % page_size != 0:
+            total_pages += 1
 
         return {
             "page_size": len(self.get_page(page, page_size)),
