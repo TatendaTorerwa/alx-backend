@@ -57,6 +57,14 @@ class Server:
 
     def get_hyper(self, page: int = 1, page_size:
                   int = 10) -> Dict[str, Union[int, List[List], None]]:
+        """
+          Args:
+            page (int): page number
+            page_size (int): number of items per page
+        Returns:
+            A dictionary of the following:
+                * page_size, page, data, next_page, prev_page, total_pages
+        """
         start_index, end_index = self.index_range(page, page_size)
 
         next_page = page + 1 if len(self.dataset()) > end_index else None
