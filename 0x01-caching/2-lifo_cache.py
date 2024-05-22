@@ -18,27 +18,24 @@ class LIFOCache(BaseCaching):
           get - method that retrieves a key/value pair from cache """
 
     def __init__(self):
-        """ Initialize class instance. """
+        ''' Initialize class instance. '''
         super().__init__()
-        self.stack = []
+        self.keys = []
 
     def put(self, key, item):
-      """ Add key/value pair to cache data.
+        """ Add key/value pair to cache data.
             If cache is at max capacity (specified by BaseCaching.MAX_ITEMS),
             discard newest entry in cache to accommodate new entry. """
-      if key is None or item is None:
-            return
-
-      if key in self.cache_data:
-            self.stack.remove(key)
-
-      self.cache_data[key] = item
-      self.stack.append(key)
-
-      if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            last_key = self.stack.pop()
-            del self.cache_data[last_key]
-            print(f"DISCARD: {last_key}")
+        if key is not None and item is not None:
+            self.cache_data[key] = item
+            if key not in self.keys:
+                self.keys.append(key)
+            else:
+                self.keys.append(self.keys.pop(self.keys.index(key)))
+            if len(self.keys) > BaseCaching.MAX_ITEMS:
+                discard = self.keys.pop(-2)
+                del self.cache_data[discard]
+                print('DISCARD: {:s}'.format(discard))
 
     def get(self, key):
         """ Return value stored in `key` key of cache.
